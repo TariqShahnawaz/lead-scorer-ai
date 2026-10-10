@@ -1,20 +1,40 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+## Run the project
 
-First, run the development server:
+Install dependencies and start the development server:
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
+
+## Configure Google AI
+
+Lead scoring uses Gemini through the Google AI API. Create an API key in Google AI Studio and add it to `.env.local` in the project root:
+
+```env
+GOOGLE_GENERATIVE_AI_API_KEY=your_api_key
+```
+
+Restart the development server after adding or changing the key. Keep the key private and do not commit `.env.local`.
+
+## Lead scoring tool contract
+
+The server-side `scoreLead` tool is defined in `lib/tools.ts` with a Zod input schema and an `execute` function. The model calls this tool with:
+
+| Input | Type | Description |
+| --- | --- | --- |
+| `name` | `string` | Lead's full name |
+| `company` | `string` | Company name |
+| `budget` | `number` | Budget in USD |
+| `industry` | `string` | Lead's industry |
+| `employees` | `number` | Company employee count |
+| `interest` | `string` | Product or service the lead is interested in |
+
+The tool returns a structured result containing `name`, `company`, `score` (0–100), `grade` (`A`–`D`), `reasons` (an array of scoring factors), and `recommendation` (the next action). Scoring considers budget, company size, industry, and interest detail. The client renders the AI SDK tool lifecycle as separate input-streaming, input-available, output-available, and output-error states; the error state includes a retry action.
 
 You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
